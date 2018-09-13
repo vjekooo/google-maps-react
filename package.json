@@ -1,15 +1,15 @@
 {
-  "name": "google-maps-react",
-  "version": "2.1.0",
-  "description": "Google maps container",
-  "author": "Fullstack.io <us@fullstack.io>",
+  "name": "drag-and-drop-maps-react",
+  "version": "0.0.1",
+  "description": "Google maps container with drag and drop functionality",
+  "author": "Vjeko",
   "license": "MIT",
   "options": {
     "mocha": "--require scripts/mocha_runner -t rewireify src/**/__tests__/**/*.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/fullstackreact/google-maps-react.git"
+    "url": "https://github.com/vjekooo/google-maps-react.git"
   },
   "main": "dist/index.js",
   "scripts": {

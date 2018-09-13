@@ -193,15 +193,13 @@ export class Map extends React.Component {
 
 			maps.event.trigger(this.map, 'ready');
 
-			// google.maps.event.addListener(map, "click", function() {
+			// google.maps.event.addListener(map, 'click', function() {
 			//   if (iw) iw.close();
 			// });
 
-			drag_area = document.getElementById("markers");
-			let divArray = drag_area.getElementsByTagName("div");
-			for (var i = 0; i < divArray.length; i++) {
-				var div = divArray[i];
-				div.onmousedown = this.initDrag;
+			let pinArray = document.querySelectorAll('.drag');
+			for (let i = 0; i < pinArray.length; i++) {
+				pinArray[i].onmousedown = this.initDrag;
 			}
 
 			this.helper.prototype = new maps.OverlayView();
@@ -255,21 +253,21 @@ export class Map extends React.Component {
 	}
 
 	fillMarker(icon) {
-		var div = document.createElement("div");
-		div.style.backgroundImage = "url(" + icon + ")";
+		var div = document.createElement('div');
+		div.style.backgroundImage = 'url(' + icon + ')';
 		var left;
-		if (mark.id == "m1") {
-			left = "0px";
-		} else if (mark.id == "m2") {
-			left = "50px";
-		} else if (mark.id == "m3") {
-			left = "100px";
+		if (mark.id == 'm1') {
+			left = '0px';
+		} else if (mark.id == 'm2') {
+			left = '50px';
+		} else if (mark.id == 'm3') {
+			left = '100px';
 		}
 		div.style.left = left;
 		div.id = mark.id;
-		div.className = "drag";
+		div.className = 'drag';
 		div.onmousedown = initDrag;
-		drag_area.replaceChild(div, mark);
+		// drag_area.replaceChild(div, mark);
 		mark = null;
 	}
 
@@ -303,15 +301,15 @@ export class Map extends React.Component {
 				icon: icon,
 				zIndex: zIndex
 			});
-			google.maps.event.addListener(marker, "click", function () {
+			google.maps.event.addListener(marker, 'click', function () {
 				actual = marker;
 				var lat = actual.getPosition().lat();
 				var lng = actual.getPosition().lng();
-				var contentStr = "<div class='infowindow'>" + lat.toFixed(6) + ", " + lng.toFixed(6) + "<\/div>";
+				var contentStr = '<div class="infowindow">' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '<\/div>';
 				iw.setContent(contentStr);
 				iw.open(map, this);
 			});
-			google.maps.event.addListener(marker, "dragstart", function () {
+			google.maps.event.addListener(marker, 'dragstart', function () {
 				if (actual == marker) iw.close();
 				zIndex += 1;
 				marker.setZIndex(zIndex);
@@ -330,25 +328,25 @@ export class Map extends React.Component {
 				let divPt = new google.maps.Point(newLeft - offset, newTop);
 				let proj = overview.getProjection();
 				let latlng = proj.fromContainerPixelToLatLng(divPt);
-				let icon = mark.style.backgroundImage.slice(4, -1).replace(/"/g, "");
+				let icon = mark.style.backgroundImage.slice(4, -1).replace(/"/g, '');
 				createDraggedMarker(latlng, icon);
 				fillMarker(icon);
 			}
 		};
 		const drag = function (mEvt) {
-			if (mark && mark.className == "drag") {
+			if (mark && mark.className == 'drag') {
 				let pt = getPt(mEvt),
 					x = pt.x - o.x,
 					y = pt.y - o.y;
-				mark.style.left = (mark.x + x) + "px";
-				mark.style.top = (mark.y + y) + "px";
+				mark.style.left = (mark.x + x) + 'px';
+				mark.style.top = (mark.y + y) + 'px';
 				mark.onmouseup = this.getPositions;
 			}
 			return false;
 		};
 		if (!evt) var evt = window.event;
 		mark = evt.target ? evt.target : evt.srcElement ? evt.srcElement : evt.touches ? evt.touches[0].target : null;
-		if (mark.className != "drag") {
+		if (mark.className != 'drag') {
 			//if (d.cancelable) d.preventDefault();
 			mark = null;
 			return;
@@ -358,7 +356,7 @@ export class Map extends React.Component {
 			mark.x = mark.offsetLeft;
 			mark.y = mark.offsetTop;
 			var o = getPt(evt);
-			if (evt.type === "touchstart") {
+			if (evt.type === 'touchstart') {
 				mark.onmousedown = null;
 				mark.ontouchmove = drag;
 				mark.ontouchend = function () {
@@ -407,7 +405,7 @@ export class Map extends React.Component {
 
 		return (
 			<div style={containerStyles} className={this.props.className}>
-				<div style={style} ref="map">
+				<div style={style} ref='map'>
 					Loading map...
         </div>
 				{this.renderChildren()}

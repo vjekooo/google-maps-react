@@ -9,3 +9,4 @@ node_modules
 .env
 public/
 dist/
+apiKey.js
