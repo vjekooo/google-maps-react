@@ -22,25 +22,15 @@ class Container extends Component {
 
     return (
       <div className={styles.container}>
-        <GitHubForkRibbon
+        {/* <GitHubForkRibbon
           href="//github.com/fullstackreact/google-maps-react"
           position="right"
           target="_blank"
         >
           Fork me on GitHub
-        </GitHubForkRibbon>
+        </GitHubForkRibbon> */}
 
         <div className={styles.wrapper}>
-          <div className={styles.list}>
-            <ul>
-              {routes.map(route => (
-                <Link key={route.path} to={route.path}>
-                  <li>{route.name}</li>
-                </Link>
-              ))}
-            </ul>
-          </div>
-
           <div className={styles.content}>
             <div className={styles.header}>
               <h1>{routeDef && routeDef.name} Example</h1>
@@ -74,6 +64,13 @@ class Container extends Component {
             </Switch>
           </div>
         </div>
+        <div className={styles.list}>
+            <div id="markers" className={styles.pins}>
+              <div id="m1" className="drag" style={ {backgroundImage: "url('http://maps.google.com/mapfiles/ms/micons/blue.png')"} }></div>
+              <div id="m2" className="drag" style={ {backgroundImage: "url('http://maps.google.com/mapfiles/ms/micons/green.png')"} }></div>
+              <div id="m3" className="drag" style={ {backgroundImage: "url('http://maps.google.com/mapfiles/ms/micons/yellow.png')"} }></div>
+            </div>
+          </div>
       </div>
     );
   }
@@ -83,7 +80,7 @@ const Loading = () => <div>Fancy loading container</div>;
 
 export default withRouter(
   GoogleApiWrapper({
-    apiKey: __GAPI_KEY__,
+    apiKey: __KEY__,
     libraries: ['places', 'visualization'],
     LoadingContainer: Loading
   })(Container)
