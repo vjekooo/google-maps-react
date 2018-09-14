@@ -279,7 +279,7 @@ export class Map extends React.Component {
 		const createDraggedMarker = function(latlng, icon) {
 			var icon = {
 				url: icon,
-				size: new google.maps.Size(32, 32),
+				size: new google.maps.Size(40, 50),
 				anchor: new google.maps.Point(15, 32)
 			};
 			var marker = new google.maps.Marker({
