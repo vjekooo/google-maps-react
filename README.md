@@ -10,7 +10,7 @@ First, install the library:
 npm install --save drag-and-drop-maps-react
 ```
 
-Then, add your pins as a background image with the class "pins".
+Then, add your pins as a background image with the class "drag".
 
 ## License
  [MIT](/LICENSE)

@@ -256,13 +256,6 @@ export class Map extends React.Component {
 		var div = document.createElement('div');
 		div.style.backgroundImage = 'url(' + icon + ')';
 		var left;
-		if (mark.id == 'm1') {
-			left = '0px';
-		} else if (mark.id == 'm2') {
-			left = '50px';
-		} else if (mark.id == 'm3') {
-			left = '100px';
-		}
 		div.style.left = left;
 		div.id = mark.id;
 		div.className = 'drag';
