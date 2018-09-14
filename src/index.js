@@ -198,9 +198,9 @@ export class Map extends React.Component {
 			// });
 
 			let pinArray = document.querySelectorAll('.drag');
-			for (let i = 0; i < pinArray.length; i++) {
-				pinArray[i].onmousedown = this.initDrag;
-			}
+			pinArray.forEach(pin => {
+				pin.onmousedown = this.initDrag;
+			});
 
 			this.helper.prototype = new maps.OverlayView();
 			overview = new this.helper();
@@ -257,7 +257,6 @@ export class Map extends React.Component {
 		div.style.backgroundImage = 'url(' + icon + ')';
 		var left;
 		div.style.left = left;
-		div.id = mark.id;
 		div.className = 'drag';
 		div.onmousedown = initDrag;
 		// drag_area.replaceChild(div, mark);
