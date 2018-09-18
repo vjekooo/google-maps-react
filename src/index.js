@@ -150,9 +150,8 @@ export class Map extends React.Component {
 			const { google } = this.props;
 			const maps = google.maps;
 
-			// const mapRef = this.refs.map;
-			// const node = ReactDOM.findDOMNode(mapRef);
-			const node = document.querySelector('#map');
+			const mapRef = this.refs.map;
+			const node = ReactDOM.findDOMNode(mapRef);
 			const curr = this.state.currentLocation;
 			const center = new maps.LatLng(curr.lat, curr.lng);
 
@@ -441,29 +440,13 @@ export class Map extends React.Component {
 			this.props.containerStyle
 		);
 
-		const props = Object.assign({}, this.props, {
-			markers: this.state.markers
-		});
-
 		return (
-			<MapWrapp {...props} />
-		);
-	}
-}
-
-export class MapWrapp extends React.Component {
-	constructor(props) {
-		super(props);
-	}
-
-	render() {
-		return (
-			<div style={this.props.containerStyles} className={this.props.className}>
-				<div style={this.props.style} id="map" ref="map">
+			<div style={containerStyles} className={this.props.className}>
+				<div style={style} ref="map">
 					Loading map...
         		</div>
 			</div>
-		)
+		);
 	}
 }
 
