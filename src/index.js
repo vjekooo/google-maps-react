@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import { camelize } from './lib/String';
 import { makeCancelable } from './lib/cancelablePromise';
+import { log } from 'util';
 
 const mapStyles = {
 	container: {
@@ -42,7 +43,7 @@ const evtNames = [
 	'zoom_changed'
 ];
 
-let map, iw, drag_area, actual, mark, fillMarker, initDrag;
+let map, iw, actual, mark;
 let overview, zIndex = 0;
 
 export { wrapper as GoogleApiWrapper } from './GoogleApiComponent';
@@ -60,18 +61,18 @@ export class Map extends React.Component {
 			throw new Error('You must include a `google` prop');
 		}
 
-		this.listeners = {};
+		this.listeners = {}
 		this.state = {
 			currentLocation: {
 				lat: this.props.initialCenter.lat,
 				lng: this.props.initialCenter.lng
-			}
+			},
+			markers: [],
+			currentMarker: null
 		};
 	}
 
 	componentDidMount() {
-		fillMarker = this.fillMarker;
-		initDrag = this.initDrag;
 		if (this.props.centerAroundCurrentLocation) {
 			if (navigator && navigator.geolocation) {
 				this.geoPromise = makeCancelable(
@@ -117,6 +118,17 @@ export class Map extends React.Component {
 		if (this.props.bounds !== prevProps.bounds) {
 			this.map.fitBounds(this.props.bounds);
 		}
+		const markers = this.state.markers;
+		markers.map(marker => {
+			marker.setMap(map)
+		});
+		const infoWindow = document.querySelector('.infowindow');
+		if (infoWindow) {
+			infoWindow.onclick = () => {
+				this.removePin(this.state.currentMarker)
+			}
+		}
+		console.log(this.state.markers);
 	}
 
 	componentWillUnmount() {
@@ -193,12 +205,13 @@ export class Map extends React.Component {
 
 			maps.event.trigger(this.map, 'ready');
 
-			// google.maps.event.addListener(map, 'click', function() {
-			//   if (iw) iw.close();
-			// });
+			google.maps.event.addListener(map, 'click', function() {
+			  if (iw) iw.close();
+			});
 
 			let pinArray = document.querySelectorAll('.drag');
 			pinArray.forEach(pin => {
+				let cat = pin.getAttribute('data-category');
 				pin.onmousedown = this.initDrag;
 			});
 
@@ -258,12 +271,93 @@ export class Map extends React.Component {
 		var left;
 		div.style.left = left;
 		div.className = 'drag';
-		div.onmousedown = initDrag;
+		div.onmousedown = () => {};
 		// drag_area.replaceChild(div, mark);
 		mark = null;
 	}
 
-	initDrag(evt) {
+	createDraggedMarker = (latlng, icon, category) => {
+		var icon = {
+			url: icon,
+			size: new google.maps.Size(40, 50),
+			anchor: new google.maps.Point(15, 32)
+		};
+		var marker = new google.maps.Marker({
+			position: latlng,
+			animation: google.maps.Animation.DROP,
+			clickable: true,
+			draggable: true,
+			crossOnDrag: false,
+			optimized: false,
+			icon: icon,
+			zIndex: zIndex,
+			category: category
+		});
+		this.setState({
+			markers: [
+				...this.state.markers,
+				marker
+			]
+		});
+		google.maps.event.addListener(marker, 'click', () => {
+			let contentStr = '<div class="infowindow">' + 'Kliknite na ovaj text za brisanje pina' + '<\/div>';
+			iw.setContent(contentStr);
+			iw.open(map, marker);
+			this.setState({
+				currentMarker: marker
+			});
+		});
+		google.maps.event.addListener(marker, 'dragstart', () => {
+			if (actual == marker) iw.close();
+			zIndex += 1;
+			marker.setZIndex(zIndex);
+		});
+		google.maps.event.addListener(marker, 'dragend', () => {
+			this.updatePosition(marker);
+		});
+	}
+
+	updatePosition = (marker) => {
+		const index = this.state.markers.findIndex(item => item.closure_uid_458836287 === marker.closure_uid_458836287)
+		const markers = [...this.state.markers]
+		markers[index] = marker
+		this.setState({
+			markers: markers
+		})
+		
+	}
+
+	removePin = (marker) => {
+		const index = this.state.markers.findIndex(item => item.closure_uid_458836287 === marker.closure_uid_458836287)
+		const markers = [...this.state.markers]
+		markers.splice(index, 1)
+		this.setState({
+			markers: markers
+		});
+		marker.setMap(null)
+	}
+
+	getPositions = () => {
+		let iconWidth = mark.offsetWidth;
+		let iconHeight = mark.offsetHeight;
+
+		let newLeft = parseInt(mark.style.left) + iconWidth / 2;
+		let newTop = parseInt(mark.style.top) - iconHeight;
+
+		if (iconWidth) {
+			let offset = 1;
+			let divPt = new google.maps.Point(newLeft - offset, newTop);
+			let proj = overview.getProjection();
+			let latlng = proj.fromContainerPixelToLatLng(divPt);
+			let icon = mark.style.backgroundImage.slice(4, -1).replace(/"/g, '');
+			let altIcon = mark.style.backgroundImage.slice(4, -6).replace(/"/g, '') + '-alt.png';
+			let category = mark.getAttribute('data-category');
+			this.createDraggedMarker(latlng, icon, category);
+			this.fillMarker(icon);
+		}
+	};
+
+	initDrag = (evt) => {
 		function getPt(evt) {
 			var pt = {};
 			if (evt && evt.touches && evt.touches.length) {
@@ -276,55 +370,6 @@ export class Map extends React.Component {
 			}
 			return pt;
 		};
-		const createDraggedMarker = function(latlng, icon) {
-			var icon = {
-				url: icon,
-				size: new google.maps.Size(40, 50),
-				anchor: new google.maps.Point(15, 32)
-			};
-			var marker = new google.maps.Marker({
-				position: latlng,
-				map: map,
-				animation: google.maps.Animation.DROP,
-				clickable: true,
-				draggable: true,
-				crossOnDrag: false,
-				optimized: false,
-				icon: icon,
-				zIndex: zIndex
-			});
-			google.maps.event.addListener(marker, 'click', function () {
-				actual = marker;
-				var lat = actual.getPosition().lat();
-				var lng = actual.getPosition().lng();
-				var contentStr = '<div class="infowindow">' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '<\/div>';
-				iw.setContent(contentStr);
-				iw.open(map, this);
-			});
-			google.maps.event.addListener(marker, 'dragstart', function () {
-				if (actual == marker) iw.close();
-				zIndex += 1;
-				marker.setZIndex(zIndex);
-			});
-		}
-		const getPositions = function() {
-			
-			let iconWidth = mark.offsetWidth;
-			let iconHeight = mark.offsetHeight;
-
-			let newLeft = parseInt(mark.style.left) + iconWidth / 2;
-			let newTop = parseInt(mark.style.top) - iconHeight;
-
-			if (iconWidth) {
-				let offset = 1;
-				let divPt = new google.maps.Point(newLeft - offset, newTop);
-				let proj = overview.getProjection();
-				let latlng = proj.fromContainerPixelToLatLng(divPt);
-				let icon = mark.style.backgroundImage.slice(4, -1).replace(/"/g, '');
-				createDraggedMarker(latlng, icon);
-				fillMarker(icon);
-			}
-		};
 		const drag = function (mEvt) {
 			if (mark && mark.className == 'drag') {
 				let pt = getPt(mEvt),
@@ -332,14 +377,16 @@ export class Map extends React.Component {
 					y = pt.y - o.y;
 				mark.style.left = (mark.x + x) + 'px';
 				mark.style.top = (mark.y + y) + 'px';
-				mark.onmouseup = this.getPositions;
+				mark.onmouseup = () => {
+					console.log('aaaaa');
+				}
 			}
 			return false;
 		};
 		if (!evt) var evt = window.event;
 		mark = evt.target ? evt.target : evt.srcElement ? evt.srcElement : evt.touches ? evt.touches[0].target : null;
 		if (mark.className != 'drag') {
-			//if (d.cancelable) d.preventDefault();
+			if (d.cancelable) d.preventDefault();
 			mark = null;
 			return;
 		} else {
@@ -358,8 +405,8 @@ export class Map extends React.Component {
 				};
 			} else {
 				document.onmousemove = drag;
-				document.onmouseup = function () {
-					getPositions();
+				document.onmouseup = () => {
+					this.getPositions();
 					document.onmousemove = null;
 					document.onmouseup = null;
 					if (mark) mark = null;
@@ -379,7 +426,8 @@ export class Map extends React.Component {
 			return React.cloneElement(c, {
 				map: this.map,
 				google: this.props.google,
-				mapCenter: this.state.currentLocation
+				mapCenter: this.state.currentLocation,
+				markers: this.state.markers
 			});
 		});
 	}

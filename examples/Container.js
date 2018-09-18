@@ -68,9 +68,26 @@ class Container extends Component {
 				</div>
 				<div className={styles.list}>
 					<div id="markers" className={styles.pins}>
-						<div id="m1" className="drag" style={{ backgroundImage: "url('http://maps.google.com/mapfiles/ms/micons/blue.png')" }}></div>
-						<div id="m2" className="drag" style={{ backgroundImage: "url('http://maps.google.com/mapfiles/ms/micons/green.png')" }}></div>
-						<div id="m3" className="drag" style={{ backgroundImage: "url('http://maps.google.com/mapfiles/ms/micons/yellow.png')" }}></div>
+						<div
+							className="drag"
+							style={{ backgroundImage: "url('http://maps.google.com/mapfiles/ms/micons/blue.png')" }}
+							data-category='jedan'
+						>
+						</div>
+						<div
+							className="drag"
+							style={{ backgroundImage: "url('http://maps.google.com/mapfiles/ms/micons/green.png')" }}
+							draggable
+							data-category='dva'
+						>
+						</div>
+						<div
+							className="drag"
+							style={{ backgroundImage: "url('http://maps.google.com/mapfiles/ms/micons/yellow.png')" }}
+							draggable
+							data-category='tri'
+						>
+						</div>
 					</div>
 				</div>
 			</div>
