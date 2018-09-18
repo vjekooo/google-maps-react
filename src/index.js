@@ -128,7 +128,6 @@ export class Map extends React.Component {
 				this.removePin(this.state.currentMarker)
 			}
 		}
-		console.log(this.state.markers);
 	}
 
 	componentWillUnmount() {
@@ -151,8 +150,9 @@ export class Map extends React.Component {
 			const { google } = this.props;
 			const maps = google.maps;
 
-			const mapRef = this.refs.map;
-			const node = ReactDOM.findDOMNode(mapRef);
+			// const mapRef = this.refs.map;
+			// const node = ReactDOM.findDOMNode(mapRef);
+			const node = document.querySelector('#map');
 			const curr = this.state.currentLocation;
 			const center = new maps.LatLng(curr.lat, curr.lng);
 
@@ -211,7 +211,6 @@ export class Map extends React.Component {
 
 			let pinArray = document.querySelectorAll('.drag');
 			pinArray.forEach(pin => {
-				let cat = pin.getAttribute('data-category');
 				pin.onmousedown = this.initDrag;
 			});
 
@@ -349,8 +348,8 @@ export class Map extends React.Component {
 			let divPt = new google.maps.Point(newLeft - offset, newTop);
 			let proj = overview.getProjection();
 			let latlng = proj.fromContainerPixelToLatLng(divPt);
-			let icon = mark.style.backgroundImage.slice(4, -1).replace(/"/g, '');
-			let altIcon = mark.style.backgroundImage.slice(4, -6).replace(/"/g, '') + '-alt.png';
+			//let icon = mark.style.backgroundImage.slice(4, -1).replace(/"/g, '');
+			let icon = mark.style.backgroundImage.slice(4, -6).replace(/"/g, '') + '-alt.svg';
 			let category = mark.getAttribute('data-category');
 			this.createDraggedMarker(latlng, icon, category);
 			this.fillMarker(icon);
@@ -418,7 +417,7 @@ export class Map extends React.Component {
 
 	renderChildren() {
 		const { children } = this.props;
-
+	
 		if (!children) return;
 
 		return React.Children.map(children, c => {
@@ -426,8 +425,7 @@ export class Map extends React.Component {
 			return React.cloneElement(c, {
 				map: this.map,
 				google: this.props.google,
-				mapCenter: this.state.currentLocation,
-				markers: this.state.markers
+				mapCenter: this.state.currentLocation
 			});
 		});
 	}
@@ -443,14 +441,29 @@ export class Map extends React.Component {
 			this.props.containerStyle
 		);
 
+		const props = Object.assign({}, this.props, {
+			markers: this.state.markers
+		});
+
 		return (
-			<div style={containerStyles} className={this.props.className}>
-				<div style={style} ref='map'>
-					Loading map...
-        </div>
-				{this.renderChildren()}
-			</div>
+			<MapWrapp {...props} />
 		);
+	}
+}
+
+export class MapWrapp extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+
+	render() {
+		return (
+			<div style={this.props.containerStyles} className={this.props.className}>
+				<div style={this.props.style} id="map" ref="map">
+					Loading map...
+        		</div>
+			</div>
+		)
 	}
 }
 

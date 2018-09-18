@@ -1,6 +1,6 @@
 {
   "name": "drag-and-drop-maps-react",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "description": "Google maps container with drag and drop functionality",
   "author": "Vjeko",
   "license": "MIT",
